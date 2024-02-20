@@ -1,17 +1,16 @@
 package com.study.signuplogin.controller;
 
 import com.study.signuplogin.config.jwt.JwtUtil;
+import com.study.signuplogin.dto.requestDto.LoginRequest;
 import com.study.signuplogin.dto.requestDto.SignupRequest;
 import com.study.signuplogin.dto.responseDto.CommonResponse;
+import com.study.signuplogin.entity.UserRoleEnum;
 import com.study.signuplogin.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController // ResponseBody + Controller
 @RequestMapping("/users")    // URL 줄이기
@@ -31,5 +30,24 @@ public class HomeController {
 
         return ResponseEntity.status(HttpStatus.CREATED.value())
                 .body(new CommonResponse("회원가입 성공", HttpStatus.CREATED.value()));
+    }
+
+    // 로그인 : 인증(Authentication)
+    @GetMapping("/login")
+    public ResponseEntity<CommonResponse> login(@RequestBody LoginRequest requestDto) {
+        try {
+            // 로그인하는 유저의 권한
+            UserRoleEnum userRole = userService.login(requestDto);
+
+            // 토큰 생성
+            String token = jwtUtil.createToken(requestDto.getUsername(), userRole);
+
+            // 토큰 헤더 설정 및 반환
+            return ResponseEntity.ok()
+                    .header(jwtUtil.AUTHORIZATION_HEADER, token)
+                    .body(new CommonResponse("로그인 성공", HttpStatus.OK.value()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new CommonResponse(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
+        }
     }
 }

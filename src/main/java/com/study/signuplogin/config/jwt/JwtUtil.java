@@ -1,5 +1,6 @@
 package com.study.signuplogin.config.jwt;
 
+import com.study.signuplogin.entity.UserRoleEnum;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -11,6 +12,7 @@ import org.springframework.util.StringUtils;
 
 import java.security.Key;
 import java.util.Base64;
+import java.util.Date;
 
 
 // JwtUtil : JSON Web Token (JWT)을 생성하고 검증하는 유틸리티 클래스
@@ -65,5 +67,23 @@ public class JwtUtil {
     // 인가(Authorization) : JWT 토큰에서 사용자 정보 가져오기
     public Claims getUserInfoFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+    }
+
+    // 인증(Authentication) : JWT 토큰 생성
+    public String createToken(String username, UserRoleEnum userRole) {
+        Date date = new Date();
+
+        // 토큰 만료시간 : 60분
+        long TOKEN_TIME = 60 * 60 * 1000L;
+
+        // 토큰 생성
+        return BEARER_PREFIX +
+                Jwts.builder()
+                        .setSubject(username) // 사용자 식별자값(ID)
+                        .claim(AUTHORIZATION_KEY, userRole) // 사용자 권한
+                        .setExpiration(new Date(date.getTime() + TOKEN_TIME)) // 만료 시간
+                        .setIssuedAt(date) // 발급일 : 생성된 시간
+                        .signWith(key, signatureAlgorithm) // 암호화 알고리즘
+                        .compact();
     }
 }

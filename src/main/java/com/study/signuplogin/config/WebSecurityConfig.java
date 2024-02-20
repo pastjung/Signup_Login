@@ -1,6 +1,7 @@
 package com.study.signuplogin.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.study.signuplogin.config.jwt.Filter.JwtAuthenticationFilter;
 import com.study.signuplogin.config.jwt.Filter.JwtAuthorizationFilter;
 import com.study.signuplogin.config.jwt.JwtUtil;
 import com.study.signuplogin.config.jwt.UserDetails.UserDetailsServiceImpl;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -63,8 +65,23 @@ public class WebSecurityConfig {
         );
 
         // Filter 관리
-        http.addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);  // JWT 검증 및 인가
+        http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);  // JWT 검증 및 인가
+        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);    // 로그인 및 JWT 생성
 
         return http.build();
+    }
+
+    // AuthenticationManager 수동 주입
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
+    }
+
+    // JwtAuthenticationFilter 수동 주입
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil);
+        filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
+        return filter;
     }
 }
