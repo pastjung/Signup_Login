@@ -1,0 +1,81 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.2.2'
+    id 'io.spring.dependency-management' version '1.1.4'
+}
+
+group = 'com.study'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    sourceCompatibility = '17'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Spring Web
+    // @Component : Bean 으로 정의 @Controller @Service @Repository
+    // @Configuration : Bean 을 사용하는 Class 라고 명시
+    // @Bean : 수동 Bean 등록
+    // @Primary @Qualifier... : Bean 사용 ...
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // test : @DisplayName
+    // 단위테스트(@Service 테스트) : @Test @ExtendWith @Mock
+    // 통합테스트(모듈과 연결해서 테스트) : @SpringBootTest @MockBean
+    // Controller 테스트 : @WebMVCTest
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+
+    // Thymeleaf : 동적으로 페이지 생성
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+
+    // Lombok : 자동으로 무언가 추가해주도록 설정
+    // @Getter @Setter @NoArgsConstructor ...
+    // @Slf4j : 자동 로그 생성
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // MySQL Driver : MySQL DB 연결
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    // JWT : JSON Web Token(JWT)를 생성, 유효성 검사 및 해석
+    // 사용처 : HS256 알고리즘
+    // JwtUtil.java
+    compileOnly group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
+    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
+    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
+
+    // Spring Data JPA : 객체 관계 매핑(Object-Relational Mapping, ORM)을 통해 데이터베이스와 자바 객체 간의 매핑을 지원
+    // 사용처 : JpaRepository, @Entity @Table @ID @Column @OneToOne @ManyToOne @OneToMany @ManyToMany...
+    // *Repository.java
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // Spring Security : 인증(Authentication), 권한(Authorization) 부여 및 보안(CSRF : Cross-Site Request Forgery) 기능
+    // 사용처 : PasswordEncoder, @AuthenticationPrincipal
+    // UserDetailsImpl.java : Spring Security 의 "접근자" = Authentication 의 Principal 에 저장
+    // UserDetailsServiceImpl.java : Spring Security 의 "인증 관리자"
+    // JwtAuthenticationFilter.java : JWT 인증 = 로그인 진행 및 JWT 생성
+    // JwtAuthorizationFilter.java : JWT 인가 = API 에 전달되는 JWT 유효성 검증 및 인가 처리
+    // WebSecurityConfig.java : Spring Security 설정 및 인증/인가 필터 등록
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // Validation : 데이터의 유효성을 검사
+    // @Valid : 객체 내부의 다른 객체나 컬렉션에 대한 유효성 검사를 수행, 주로 DTO 를 컨트롤러에서 전달 받을 때 사용
+    // @Pattern : 정규 표현식을 사용하여 문자열의 형식을 검사할 때 사용
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
