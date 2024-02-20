@@ -20,6 +20,13 @@ public class HomeController {
     private final UserService userService;
 
     // 회원가입 : 인가(Authorization)
+    // POST : http://localhost:8080/users/signup
+    /*
+    {
+        "username": "test12345",
+        "password": "12345Abcde"
+    }
+     */
     @PostMapping("/signup")
     public ResponseEntity<CommonResponse> signup(@RequestBody @Valid SignupRequest requestDto){
         try {
@@ -33,6 +40,13 @@ public class HomeController {
     }
 
     // 로그인 : 인증(Authentication)
+    // GET : http://localhost:8080/users/login
+    /*
+    {
+        "username": "test12345",
+        "password": "12345Abcde"
+    }
+     */
     @GetMapping("/login")
     public ResponseEntity<CommonResponse> login(@RequestBody LoginRequest requestDto) {
         try {
